@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require "./lib/zero_courses"
+ZeroCourses::CLI.new.call

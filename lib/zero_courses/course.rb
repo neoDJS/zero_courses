@@ -1,0 +1,2 @@
+class ZeroCourses::course
+end

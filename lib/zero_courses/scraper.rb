@@ -1,24 +1,29 @@
 require 'open-uri'
 require 'pry'
 
-class ZeroCourses::Scraper
-
+class ZeroCourses::ScraperZero
+  attr_accessor :zero_page # "https://openclassrooms.com/fr/courses"
   def self.scrape_courses_page
     # write your code here
     # This just opens a file and reads it into a variable
-    # html = File.read('fixtures/kickstarter.html')
-
-    courses_page = Nokogiri::HTML(open(index_url))
-    list_courses = courses_page.css("ul.jss276 li.jss372 a")
-    test = list_courses.collect do |course|
+    list_courses = self.new.get_courses
+    tab = list_courses.collect do |course|
       ash = {}
-    #   ash[:name] = student.css("div.card-text-container h4.student-name").text
-    #   ash[:location] = student.css("div.card-text-container p.student-location").text
-    #   ash[:profile_url] = student.attribute("href").value
+      ash[:name] = course.css("div.jss380 h5.jss378").text
+      ash[:categorie] = course.css("div.jss380 span.jss376").text
+      ash[:difficulte] = course.css("div.jss380 p.jss258 span.jss387").first.text
+      ash[:duree] = course.css("div.jss380 p.jss258 span.jss387").last.text
+      ash[:description] = course.css("div.jss380 p.jss373").text
+      ash[:icone_url] = course.css("div.jss379 .jss384").attribute("style").value[/url\((.+)\)/, 1] # "https://course.oc-static.com/courses/5106001/5106001_teaser_picture_1541780159.jpg"
+      # ash[:icone_url] = course.css("div.jss379 .jss384").attribute("style").value # 'background-image: url("https://course.oc-static.com/courses/5106001/5106001_teaser_picture_1541780159.jpg");'
+      # doc = Nokogiri::HTML('<div class="zoomLens" style="background-image: url(http://resources1.okadirect.com/assets/en/new/catalogue/1200x1200/EHD005MET-L_01.jpg?version=7); background-position: -14.7368421052632px -977.894736842105px; background-repeat: no-repeat;">&nbsp;</div>')
+      # doc.search('.zoomLens').map{ |n| n['style'][/url\((.+)\)/, 1] }
+      # # => ["http://resources1.okadirect.com/assets/en/new/catalogue/1200x1200/EHD005MET-L_01.jpg?version=7"]
+      ash[:profile_url] = course.attribute("href").value
       ash
     end
     # binding.pry
-    test
+    tab
   end
 
   def self.scrape_profile_course_page(profile_url)
@@ -54,8 +59,8 @@ class ZeroCourses::Scraper
     self.get_page.css("ul.jss276 li.jss372 a")
   end
 
-  def get_page
-    doc = Nokogiri::HTML(open("https://openclassrooms.com/fr/courses"))
+  def get_zero_page
+    doc = Nokogiri::HTML(open(self.zero_page))
   end
 
 end

@@ -1,5 +1,5 @@
 class ZeroCourses::Page
-    attr_accessor :url, :content, :title, :video_url
+    attr_accessor :profil_url, :content, :title, :video_url
     @@all = []
     def initialize(page_hash)
         page_hash.each do |attribute, value|

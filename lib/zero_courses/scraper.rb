@@ -6,7 +6,8 @@ class ZeroCourses::ScraperZero
   def self.scrape_courses_page
     # write your code here
     # This just opens a file and reads it into a variable
-    list_courses = self.new.get_courses
+    (scrap = self.new).zero_page = "https://openclassrooms.com/fr/courses"
+    list_courses = scrap.get_courses
     tab = list_courses.collect do |course|
       ash = {}
       ash[:name] = course.css("div.jss380 h5.jss378").text
@@ -28,21 +29,23 @@ class ZeroCourses::ScraperZero
 
   def scrape_certificate_page
     ash = {}
-    introPage = self.new.get_zero_page
+    introPage = self.get_zero_page
     ash[:content] = introPage.css("div.textLayer > div").to_a.map(&:to_s).join("\n")
     ash
   end
 
-  def self.scrape_Introduction_page
+  def self.scrape_course_detail_page(url_home)
     ash = {}
-    introPage = self.new.get_zero_page
+    (otherScrap = self.new).zero_page = url_home
+    introPage = otherScrap.get_zero_page
     pageContentData = introPage.css("div.contentWithSidebar__content div.static")
-    ash[:title] = pageContentData.css("h2.part-title").text
-    ash[:video_url] = pageContentData.css("div.userContent > iframe#video_Player_0").attribute("src").value
-    ash[:content] = pageContentData.css("div.userContent > p[data-claire-element-id], div.userContent > div.foldable").to_a.map(&:to_s).join("\n")
-    ash[:prerequis] = pageContentData.css("div.userContent aside[data-claire-semantic='information'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
-    ash[:objectif] = pageContentData.css("div.userContent aside[data-claire-semantic='warning'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
-    ash[:courseParts] = pageContentData.css("nav li.course-part-summary").map{|part|
+    ash[:home] = {}
+    ash[:home][:title] = pageContentData.css("h2.part-title").text
+    ash[:home][:video_url] = pageContentData.css("div.userContent > iframe#video_Player_0").attribute("src").value
+    ash[:home][:content] = pageContentData.css("div.userContent > p[data-claire-element-id], div.userContent > div.foldable").to_a.map(&:to_s).join("\n")
+    ash[:home][:prerequis] = pageContentData.css("div.userContent aside[data-claire-semantic='information'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    ash[:home][:objectif] = pageContentData.css("div.userContent aside[data-claire-semantic='warning'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    ash[:course_parts] = pageContentData.css("nav li.course-part-summary").map{|part|
       newpart = {}
       newpart[:title] = part.css("secction>a div.course-part-summary__title")
       newpart[:time_lines] = part.css("secction>ol li.course-part-summary__item").map{|line|
@@ -54,15 +57,15 @@ class ZeroCourses::ScraperZero
       }
       newpart
     }
-    ash[:certificat] = {}
-    (scrap2 = self.new).zero_page = ash[:certificat][:url] = pageContentData.css("nav li.course-part-summary--certifying > a").attribute("href").value
-    ash[:certificat] = ash[:certificat].merge(scrap2.scrape_certificate_page)
+    ash[:certificate] = {}
+    (scrap2 = self.new).zero_page = ash[:certificate][:url] = pageContentData.css("nav li.course-part-summary--certifying > a").attribute("href").value
+    ash[:certificate] = ash[:certificate].merge(scrap2.scrape_certificate_page)
     ash
   end
 
   def scrape_time_line_page
     ash = {}
-    introPage = self.new.get_zero_page
+    introPage = self.get_zero_page
     pageContentData = introPage.css("div.contentWithSidebar__content div.static")
     ash[:video_url] = pageContentData.css("div.userContent > iframe#video_Player_0").attribute("src").value
     ash[:content] = pageContentData.css("div.userContent > p[data-claire-element-id], div.userContent > div.foldable").to_a.map(&:to_s).join("\n")

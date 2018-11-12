@@ -3,7 +3,7 @@ class ZeroCourses::Course
     @@all_c = []
 
     def initialize(course_ash)
-        page_hash.each do |attribute, value|
+        course_ash.each do |attribute, value|
             self.send("#{attribute}=", value)
         end
         @@all_c << self
@@ -13,5 +13,21 @@ class ZeroCourses::Course
         @@all_c
     end
 
-    def add_attribute_
+    def home=(home_ash)
+        @home = Home.new(home_ash)
+    end
+
+    def course_parts=(coursePart_arr)
+        @course_parts = CoursePart.create_from_collection(coursePart_arr)
+    end
+
+    def certificate=(certificat_ash)
+        @certificate = Certificate.new(certificat_ash)
+    end
+
+    def add_attribute(attribute_hash)
+        attribute_hash.each do |attribute, value|
+            self.send("#{attribute}=", value)
+        end
+    end
 end

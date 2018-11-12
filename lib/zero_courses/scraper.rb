@@ -26,36 +26,7 @@ class ZeroCourses::ScraperZero
     tab
   end
 
-  def self.scrape_profile_course_page(profile_url)
-    ash = {}
-    # social = [:twitter, :linkedin, :github]
-    # profile = Nokogiri::HTML(open(profile_url))
-    # social_media = profile.css("div.social-icon-container a")
-    # social_media.each_with_index{|media, i|
-    #   social.delete_if{|s|
-    #     ash[s] = media.attribute("href").value if media.attribute("href").value.include?(s.to_s)
-    #     media.attribute("href").value.include?(s.to_s)
-    #   }
-
-    #   ash[:blog] = media.attribute("href").value if !ash.values.include?(media.attribute("href").value) && (i+1==social_media.count)
-    # }
-    # binding.pry
-
-    # ash[:profile_quote] = profile.css("div.profile-quote").text
-    # ash[:bio] = profile.css("div.bio-content p").text
-    ash
-  end
-
-  def make_courses
-    self.get_courses.each do |post|
-      course = Course.new
-      course.title = post.css("h2").text
-      course.schedule = post.css(".date").text
-      course.description = post.css("p").text
-    end
-  end
-
-  def self.scrape_certificate_page
+  def scrape_certificate_page
     ash = {}
     introPage = self.new.get_zero_page
     ash[:content] = introPage.css("div.textLayer > div").to_a.map(&:to_s).join("\n")
@@ -77,13 +48,20 @@ class ZeroCourses::ScraperZero
       newpart[:time_lines] = part.css("secction>ol li.course-part-summary__item").map{|line|
         line = {}
         line[:title] = line.css("a").text
-        line[:profile_url] = line.css("a").attribute("href").value
+        (scrap = self.new).zero_page = line[:profile_url] = line.css("a").attribute("href").value
+        lineContent = scrap.scrape_time_line_page
+        line = line.merge(lineContent)
+        line
       }
+      newpart
     }
+    ash[:certificat] = {}
+    (scrap2 = self.new).zero_page = ash[:certificat][:url] = pageContentData.css("nav li.course-part-summary--certifying > a").attribute("href").value
+    ash[:certificat] = ash[:certificat].merge(scrap2.scrape_certificate_page)
     ash
   end
 
-  def self.scrape_time_line_page
+  def scrape_time_line_page
     ash = {}
     introPage = self.new.get_zero_page
     pageContentData = introPage.css("div.contentWithSidebar__content div.static")

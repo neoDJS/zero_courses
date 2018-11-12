@@ -1,2 +1,2 @@
-class Certificate < Page
+class ZeroCourses::Certificate < Page
 end

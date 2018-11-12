@@ -1,2 +1,2 @@
-class Home < Page
+class ZeroCourses::Home < Page
 end

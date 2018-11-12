@@ -1,3 +1,3 @@
 class ZeroCourses::course
-    attr_accessor :home, :time_lines, :certificate
+    attr_accessor :home, :course_parts, :certificate
 end

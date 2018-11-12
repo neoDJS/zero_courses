@@ -55,8 +55,47 @@ class ZeroCourses::ScraperZero
     end
   end
 
+  def self.scrape_certificate_page
+    ash = {}
+    introPage = self.new.get_zero_page
+    ash[:content] = introPage.css("div.textLayer > div").to_a.map(&:to_s).join("\n")
+    ash
+  end
+
+  def self.scrape_Introduction_page
+    ash = {}
+    introPage = self.new.get_zero_page
+    pageContentData = introPage.css("div.contentWithSidebar__content div.static")
+    ash[:title] = pageContentData.css("h2.part-title").text
+    ash[:video_url] = pageContentData.css("div.userContent > iframe#video_Player_0").attribute("src").value
+    ash[:content] = pageContentData.css("div.userContent > p[data-claire-element-id], div.userContent > div.foldable").to_a.map(&:to_s).join("\n")
+    ash[:prerequis] = pageContentData.css("div.userContent aside[data-claire-semantic='information'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    ash[:objectif] = pageContentData.css("div.userContent aside[data-claire-semantic='warning'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    ash[:courseParts] = pageContentData.css("nav li.course-part-summary").map{|part|
+      newpart = {}
+      newpart[:title] = part.css("secction>a div.course-part-summary__title")
+      newpart[:time_lines] = part.css("secction>ol li.course-part-summary__item").map{|line|
+        line = {}
+        line[:title] = line.css("a").text
+        line[:profile_url] = line.css("a").attribute("href").value
+      }
+    }
+    ash
+  end
+
+  def self.scrape_time_line_page
+    ash = {}
+    introPage = self.new.get_zero_page
+    pageContentData = introPage.css("div.contentWithSidebar__content div.static")
+    ash[:video_url] = pageContentData.css("div.userContent > iframe#video_Player_0").attribute("src").value
+    ash[:content] = pageContentData.css("div.userContent > p[data-claire-element-id], div.userContent > div.foldable").to_a.map(&:to_s).join("\n")
+    # ash[:prerequis] = pageContentData.css("div.userContent aside[data-claire-semantic='information'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    # ash[:objectif] = pageContentData.css("div.userContent aside[data-claire-semantic='warning'] p[data-claire-element-id]").to_a.map(&:to_s).join("\n")
+    ash
+  end
+
   def get_courses
-    self.get_page.css("ul.jss276 li.jss372 a")
+    self.get_zero_page.css("ul.jss276 li.jss372 a")
   end
 
   def get_zero_page

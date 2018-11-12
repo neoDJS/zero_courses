@@ -1,8 +1,9 @@
 class Page
-    attr_accessor :url, :content
+    attr_accessor :url, :content, :title
 
-    def initialize(url, content)
+    def initialize(title, url, content)
         @content = content
         @url = url
+        @title = title
     end
 end

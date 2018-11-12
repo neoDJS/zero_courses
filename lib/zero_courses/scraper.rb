@@ -50,8 +50,7 @@ class ZeroCourses::ScraperZero
         line[:title] = line.css("a").text
         (scrap = self.new).zero_page = line[:profile_url] = line.css("a").attribute("href").value
         lineContent = scrap.scrape_time_line_page
-        line = line.merge(lineContent)
-        line
+        line.merge(lineContent)
       }
       newpart
     }
